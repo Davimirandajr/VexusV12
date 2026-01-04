@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus V12 | Automotive CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .kanban-column { min-height: 70vh; background: #f1f5f9; border-radius: 12px; padding: 15px; }
+        .card { cursor: grab; transition: all 0.2s; border: 1px solid #e2e8f0; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .ai-badge { background: linear-gradient(90deg, #0ea5e9, #6366f1); color: white; font-size: 0.65rem; font-weight: bold; }
+        .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900">
+
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-64 bg-slate-950 text-white p-6 flex-shrink-0 flex flex-col">
+            <div class="mb-10">
+                <h1 class="text-2xl font-black flex items-center gap-2 tracking-tighter">
+                    <i class="fas fa-car-side text-sky-400"></i> NEXUS <span class="text-sky-400">V12</span>
+                </h1>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Automotive Intelligence</p>
+            </div>
+            
+            <nav class="space-y-2 flex-1">
+                <button onclick="showPage('pipeline')" id="nav-pipeline" class="nav-item w-full flex items-center p-3 rounded-xl hover:bg-slate-800 transition active bg-sky-600">
+                    <i class="fas fa-filter w-6"></i> Showroom
+                </button>
+                <button onclick="showPage('estoque')" id="nav-estoque" class="nav-item w-full flex items-center p-3 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fas fa-warehouse w-6"></i> Estoque
+                </button>
+                <button onclick="showPage('ai-insights')" id="nav-ai-insights" class="nav-item w-full flex items-center p-3 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fas fa-brain w-6"></i> Predição de Venda
+                </button>
+            </nav>
+
+            <div class="pt-4 border-t border-slate-800">
+                <div class="flex items-center gap-3 p-2 bg-slate-900 rounded-lg">
+                    <div class="w-8 h-8 rounded-full bg-sky-500 flex items-center justify-center text-xs font-bold">JD</div>
+                    <div class="text-[10px]">
+                        <p class="font-bold">Gerente de Vendas</p>
+                        <p class="text-slate-500 text-green-400">● Online (LocalHost)</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main id="main-content" class="flex-1 overflow-y-auto p-8 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+            </main>
+    </div>
+
+    <div id="modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-lg border border-slate-100">
+            <h2 class="text-2xl font-bold mb-2 text-slate-800">Cadastrar Nova Oportunidade</h2>
+            <p class="text-sm text-slate-500 mb-6">Insira os dados do veículo e o interesse do cliente.</p>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase">Cliente / Lead</label>
+                    <input type="text" id="leadClient" placeholder="Nome do Interessado" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:border-sky-500 transition">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase">Veículo (Marca/Mod)</label>
+                    <input type="text" id="leadCar" placeholder="Ex: BMW M3" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:border-sky-500 transition">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase">Valor (R$)</label>
+                    <input type="number" id="leadPrice" placeholder="0.000" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:border-sky-500 transition">
+                </div>
+                <div class="col-span-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase">Status Inicial</label>
+                    <select id="leadCol" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:border-sky-500 transition">
+                        <option value="col-1">Entrada / Prospecção</option>
+                        <option value="col-2">Test Drive</option>
+                        <option value="col-3">Negociação / Avaliação</option>
+                        <option value="col-4">Entrega / Vendido</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-8">
+                <button onclick="closeModal()" class="flex-1 p-4 text-slate-400 font-bold hover:bg-slate-50 rounded-2xl">Voltar</button>
+                <button onclick="saveLead()" class="flex-1 p-4 bg-sky-600 text-white font-bold rounded-2xl hover:bg-sky-700 shadow-lg shadow-sky-200 transition">Registrar No Nexus</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- BACKEND MOCK (LOCALSTORAGE) ---
+        // Aqui simulamos o Firebase. Os dados ficam salvos no navegador.
+        let storage = JSON.parse(localStorage.getItem('nexus_v12_leads')) || [];
+
+        const pages = {
+            pipeline: () => `
+                <header class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-4xl font-black text-slate-800 tracking-tight">Showroom Digital</h2>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="status-dot bg-green-500"></span>
+                            <p class="text-slate-500 text-sm font-medium">Sincronizado com Estoque Local</p>
+                        </div>
+                    </div>
+                    <button onclick="openModal()" class="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-sky-600 transition shadow-xl flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Novo Atendimento
+                    </button>
+                </header>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    ${['Entrada', 'Test Drive', 'Negociação', 'Vendido'].map((label, i) => `
+                        <div class="flex flex-col">
+                            <div class="flex justify-between items-center mb-4 px-2">
+                                <h3 class="font-black uppercase text-[11px] tracking-widest text-slate-400">${label}</h3>
+                                <span class="text-[10px] bg-slate-200 px-2 py-0.5 rounded text-slate-500 font-bold">
+                                    ${storage.filter(l => l.col === 'col-'+(i+1)).length}
+                                </span>
+                            </div>
+                            <div id="col-${i+1}" class="kanban-column space-y-4 shadow-inner" ondrop="drop(event)" ondragover="allowDrop(event)">
+                                ${renderLeads('col-'+(i+1))}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `,
+            estoque: () => `
+                <h2 class="text-3xl font-black text-slate-800 mb-6 tracking-tight text-center">Inventário de Veículos</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    ${storage.length === 0 ? '<p class="col-span-3 text-center text-slate-400 py-20">Nenhum veículo em negociação no momento.</p>' : 
+                      storage.map(l => `
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                            <div class="h-32 bg-slate-100 rounded-2xl mb-4 flex items-center justify-center text-slate-300 text-4xl italic font-black">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            <h3 class="font-bold text-lg">${l.car}</h3>
+                            <p class="text-sky-600 font-black text-xl">R$ ${parseFloat(l.price).toLocaleString('pt-BR')}</p>
+                            <p class="text-xs text-slate-400 mt-2 italic">Interessado: ${l.client}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `,
+            'ai-insights': () => `
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-black text-slate-800 mb-8 tracking-tight"><i class="fas fa-brain text-sky-500"></i> Nexus AI</h2>
+                    <div class="bg-slate-900 rounded-[40px] p-10 text-white shadow-2xl relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h3 class="text-sky-400 font-bold uppercase tracking-widest text-xs mb-2">Relatório de Probabilidade</h3>
+                            <p class="text-4xl font-light mb-6">Seu estoque tem <span class="font-black text-sky-400">72%</span> de chance de giro nos próximos 15 dias.</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700">
+                                    <p class="text-slate-500 text-[10px] uppercase font-bold">Modelo em Alta</p>
+                                    <p class="text-xl font-bold">SUVs Premium</p>
+                                </div>
+                                <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700">
+                                    <p class="text-slate-500 text-[10px] uppercase font-bold">Ticket Médio</p>
+                                    <p class="text-xl font-bold">R$ 145k</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute top-0 right-0 p-10 opacity-10 text-9xl"><i class="fas fa-chart-line"></i></div>
+                    </div>
+                </div>
+            `
+        };
+
+        // --- CORE FUNCTIONS ---
+        function showPage(pageId) {
+            const container = document.getElementById('main-content');
+            container.style.opacity = '0';
+            setTimeout(() => {
+                container.innerHTML = pages[pageId]();
+                container.style.opacity = '1';
+                document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('bg-sky-600', 'active'));
+                document.getElementById('nav-' + pageId).classList.add('bg-sky-600', 'active');
+            }, 150);
+        }
+
+        function renderLeads(colId) {
+            return storage.filter(l => l.col === colId).map(l => `
+                <div class="card bg-white p-5 rounded-2xl shadow-sm border-t-4 border-sky-500" draggable="true" ondragstart="drag(event)" id="${l.id}">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="ai-badge px-2 py-0.5 rounded-full uppercase">Hot Lead</span>
+                        <span class="text-[10px] font-bold text-slate-400">#${l.id.substring(5,9)}</span>
+                    </div>
+                    <h4 class="font-black text-slate-800 leading-tight mb-1 text-lg">${l.car}</h4>
+                    <p class="text-sm font-bold text-sky-600 mb-3">R$ ${parseFloat(l.price).toLocaleString('pt-BR')}</p>
+                    
+                    <div class="bg-slate-50 p-2 rounded-lg mb-4">
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">Cliente</p>
+                        <p class="text-xs font-bold text-slate-600">${l.client}</p>
+                    </div>
+
+                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-400">
+                        <span><i class="far fa-calendar-alt mr-1"></i> ${new Date().toLocaleDateString()}</span>
+                        <button onclick="deleteLead('${l.id}')" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- ACTIONS ---
+        function openModal() { document.getElementById('modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+
+        function saveLead() {
+            const client = document.getElementById('leadClient').value;
+            const car = document.getElementById('leadCar').value;
+            const price = document.getElementById('leadPrice').value;
+            const col = document.getElementById('leadCol').value;
+
+            if(!client || !car || !price) return alert("Erro: Nexus V12 exige dados completos.");
+
+            const newEntry = { id: 'v12-' + Date.now(), client, car, price, col };
+            storage.push(newEntry);
+            localStorage.setItem('nexus_v12_leads', JSON.stringify(storage));
+            
+            closeModal();
+            showPage('pipeline');
+        }
+
+        function deleteLead(id) {
+            storage = storage.filter(l => l.id !== id);
+            localStorage.setItem('nexus_v12_leads', JSON.stringify(storage));
+            showPage('pipeline');
+        }
+
+        // --- DRAG AND DROP ---
+        function allowDrop(ev) { ev.preventDefault(); }
+        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+        function drop(ev) {
+            ev.preventDefault();
+            const id = ev.dataTransfer.getData("text");
+            let target = ev.target;
+            while(target && !target.classList.contains('kanban-column')) target = target.parentElement;
+            
+            if(target) {
+                const lead = storage.find(l => l.id === id);
+                lead.col = target.id;
+                localStorage.setItem('nexus_v12_leads', JSON.stringify(storage));
+                showPage('pipeline');
+            }
+        }
+
+        window.onload = () => showPage('pipeline');
+    </script>
+</body>
+</html>
