@@ -3,127 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus V12 | Enterprise Cloud</title>
+    <title>Nexus V12 | Interactive ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background: #020617; }
-        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(10px); }
-        .alert-vencido { border: 2px solid #ef4444 !important; animation: pulse-red 2s infinite; }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        body { background: #05070a; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .glass-card { background: rgba(17, 25, 40, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        .pulse-red { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        .toast-active { transform: translateX(0) !important; }
     </style>
 </head>
-<body class="text-slate-300">
+<body class="text-slate-200">
 
-    <div class="flex h-screen overflow-hidden">
-        <aside class="w-64 bg-black border-r border-slate-800 flex flex-col p-6 shadow-2xl">
-            <div class="mb-10">
-                <h1 class="text-2xl font-black text-sky-400 italic italic">NEXUS V12</h1>
-                <p class="text-[9px] text-slate-500 font-bold uppercase tracking-[0.3em]">Full Management</p>
-            </div>
+    <div id="toast" class="fixed top-5 right-5 z-[100] transform translate-x-[150%] transition-all duration-500 bg-sky-600 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold flex items-center gap-3">
+        <i class="fas fa-check-circle"></i> <span id="toast-msg">Ação realizada!</span>
+    </div>
 
-            <nav class="space-y-2 flex-1">
-                <button onclick="changeTab('estoque')" id="btn-estoque" class="w-full flex items-center gap-3 p-4 rounded-xl bg-sky-600 text-white font-bold transition">
-                    <i class="fas fa-box"></i> Estoque
-                </button>
-                <button onclick="changeTab('crm')" id="btn-crm" class="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-slate-900 transition text-slate-400">
-                    <i class="fas fa-users"></i> CRM / Leads
-                </button>
-                <button onclick="changeTab('alertas')" id="btn-alertas" class="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-red-950/20 transition text-red-500">
-                    <i class="fas fa-exclamation-triangle"></i> Pendências
-                </button>
+    <div class="flex h-screen w-full">
+        <aside class="w-20 hover:w-64 transition-all duration-300 bg-black border-r border-slate-800 flex flex-col items-center py-8 z-50 overflow-hidden group">
+            <div class="mb-10 text-sky-500 text-2xl"><i class="fas fa-bolt"></i></div>
+            <nav class="flex flex-col gap-8 w-full px-4">
+                <button onclick="switchView('dashboard')" class="flex items-center gap-4 text-sky-500 w-full"><i class="fas fa-chart-pie text-xl w-12 text-center"></i> <span class="opacity-0 group-hover:opacity-100 font-bold uppercase text-xs">Painel Geral</span></button>
+                <button onclick="switchView('estoque')" class="flex items-center gap-4 text-slate-500 hover:text-sky-400 w-full"><i class="fas fa-car-side text-xl w-12 text-center"></i> <span class="opacity-0 group-hover:opacity-100 font-bold uppercase text-xs">Estoque</span></button>
+                <button onclick="switchView('crm')" class="flex items-center gap-4 text-slate-500 hover:text-sky-400 w-full"><i class="fas fa-headset text-xl w-12 text-center"></i> <span class="opacity-0 group-hover:opacity-100 font-bold uppercase text-xs">Atendimento</span></button>
             </nav>
-
-            <div class="mt-auto p-4 bg-slate-900/50 rounded-2xl border border-slate-800">
-                <div class="flex justify-between text-[10px] font-bold mb-2">
-                    <span class="text-slate-500">DATABASE STATUS</span>
-                    <span class="text-green-500">ONLINE</span>
-                </div>
-                <div class="h-1 bg-slate-800 rounded-full overflow-hidden">
-                    <div class="w-full h-full bg-green-500 animate-pulse"></div>
-                </div>
-            </div>
         </aside>
 
-        <main class="flex-1 flex flex-col">
-            <header class="p-6 bg-[#030816]/80 border-b border-slate-800 flex justify-between items-center glass">
+        <main class="flex-1 flex flex-col relative overflow-hidden">
+            <header class="h-20 border-b border-slate-800 flex items-center justify-between px-10 glass-card">
                 <div>
-                    <h2 id="page-title" class="text-2xl font-black text-white italic">Estoque de Veículos</h2>
-                    <p class="text-slate-500 text-xs uppercase font-bold tracking-widest" id="page-desc">Controle físico de entrada e saída</p>
+                    <h1 class="text-xl font-black italic">NEXUS <span class="text-sky-500">V12</span></h1>
+                    <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Controle em tempo real</p>
                 </div>
-                <button onclick="openModal()" class="bg-sky-500 hover:bg-sky-400 text-white px-6 py-3 rounded-xl font-black transition flex items-center gap-2">
-                    <i class="fas fa-plus"></i> NOVO REGISTRO
-                </button>
+                <div class="flex gap-4">
+                    <button onclick="showModal()" class="bg-sky-600 hover:bg-sky-500 px-6 py-2 rounded-xl font-bold text-sm transition shadow-lg shadow-sky-900/40">+ NOVO</button>
+                </div>
             </header>
 
-            <div class="grid grid-cols-4 gap-4 p-6 bg-slate-900/20 border-b border-slate-800">
-                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase">Total em Estoque</p>
-                    <p id="stat-total" class="text-2xl font-black text-white">0</p>
+            <div id="view-dashboard" class="flex-1 p-8 grid grid-cols-12 gap-6 overflow-y-auto custom-scroll">
+                
+                <div class="col-span-12 md:col-span-3 p-6 glass-card rounded-[30px]">
+                    <p class="text-xs font-bold text-slate-500 uppercase">Estoque Total</p>
+                    <h2 id="total-car" class="text-4xl font-black mt-2">0</h2>
                 </div>
-                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase">Leads Quentes</p>
-                    <p id="stat-leads" class="text-2xl font-black text-sky-400">0</p>
+                <div class="col-span-12 md:col-span-3 p-6 glass-card rounded-[30px] border-l-4 border-orange-500">
+                    <p class="text-xs font-bold text-slate-500 uppercase">Pendências</p>
+                    <h2 id="total-alert" class="text-4xl font-black mt-2 text-orange-500">0</h2>
                 </div>
-                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase">Pendências Ativas</p>
-                    <p id="stat-alerts" class="text-2xl font-black text-red-500">0</p>
+                <div class="col-span-12 md:col-span-3 p-6 glass-card rounded-[30px] border-l-4 border-green-500">
+                    <p class="text-xs font-bold text-slate-500 uppercase">Vendidos</p>
+                    <h2 id="total-venda" class="text-4xl font-black mt-2 text-green-500">0</h2>
                 </div>
-                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase">Vendas Mês</p>
-                    <p id="stat-vendas" class="text-2xl font-black text-green-500">0</p>
+                <div class="col-span-12 md:col-span-3 p-6 glass-card rounded-[30px]">
+                    <p class="text-xs font-bold text-slate-500 uppercase">Conversão</p>
+                    <h2 class="text-4xl font-black mt-2 text-sky-400">82%</h2>
+                </div>
+
+                <div class="col-span-12 lg:col-span-8 glass-card rounded-[40px] p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-black uppercase text-sm tracking-widest">Últimas Movimentações</h3>
+                        <div class="flex gap-2">
+                            <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                            <span class="w-3 h-3 bg-sky-500 rounded-full"></span>
+                        </div>
+                    </div>
+                    <div id="feed-lista" class="space-y-4">
+                        </div>
+                </div>
+
+                <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+                    <div class="glass-card rounded-[40px] p-6 border-red-500/20">
+                        <h3 class="text-red-500 font-bold uppercase text-[10px] mb-4 italic italic tracking-widest">Ações Requeridas</h3>
+                        <div id="feed-alertas" class="space-y-4">
+                            </div>
+                    </div>
                 </div>
             </div>
-
-            <div id="content-grid" class="p-8 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                </div>
         </main>
     </div>
 
-    <div id="modal" class="hidden fixed inset-0 bg-black/95 flex items-center justify-center p-4 z-50 backdrop-blur-md">
-        <div class="bg-slate-900 p-8 rounded-[32px] w-full max-w-2xl border border-slate-800 shadow-2xl">
-            <h2 class="text-2xl font-black mb-6 text-sky-400 italic">Entrada de Dados Nexus</h2>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="col-span-2 space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Veículo / Modelo</label>
-                    <input type="text" id="vModelo" placeholder="Ex: BMW M4 Competition" class="w-full p-4 bg-slate-800 rounded-xl outline-none border border-slate-700 focus:border-sky-500 transition">
+    <div id="modal" class="hidden fixed inset-0 bg-black/90 z-[200] flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-slate-900 border border-slate-800 p-10 rounded-[50px] w-full max-w-lg shadow-2xl scale-95 transition-all duration-300">
+            <h2 class="text-3xl font-black mb-8 italic italic">Novo Registro <span class="text-sky-500">Nexus</span></h2>
+            <div class="space-y-6">
+                <input type="text" id="m-carro" placeholder="Veículo" class="w-full p-4 bg-slate-800 rounded-2xl outline-none focus:ring-2 ring-sky-500">
+                <div class="flex gap-4">
+                    <input type="number" id="m-preco" placeholder="Preço" class="w-full p-4 bg-slate-800 rounded-2xl outline-none">
+                    <input type="number" id="m-prazo" placeholder="Alerta (Dias)" value="3" class="w-32 p-4 bg-slate-800 rounded-2xl outline-none text-sky-400 font-bold text-center">
                 </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Preço de Venda</label>
-                    <input type="number" id="vPreco" placeholder="R$" class="w-full p-4 bg-slate-800 rounded-xl outline-none border border-slate-700">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Status do Veículo</label>
-                    <select id="vStatus" class="w-full p-4 bg-slate-800 rounded-xl outline-none border border-slate-700">
-                        <option value="estoque">Em Estoque (Livre)</option>
-                        <option value="negociacao">Em Negociação</option>
-                        <option value="vendido">Vendido / Entrega</option>
-                        <option value="revisao">Oficina / Revisão</option>
-                    </select>
-                </div>
-                <hr class="col-span-2 border-slate-800 my-2">
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Cliente (Opcional)</label>
-                    <input type="text" id="cNome" placeholder="Nome do Lead" class="w-full p-4 bg-slate-800 rounded-xl outline-none border border-slate-700">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Prazo de Alerta (Dias)</label>
-                    <input type="number" id="vPrazo" value="5" class="w-full p-4 bg-slate-800 rounded-xl outline-none border border-sky-900 text-sky-400 font-bold text-center">
-                </div>
+                <input type="text" id="m-cliente" placeholder="Nome do Cliente" class="w-full p-4 bg-slate-800 rounded-2xl outline-none">
+                <input type="text" id="m-zap" placeholder="WhatsApp (DDD+Numero)" class="w-full p-4 bg-slate-800 rounded-2xl outline-none">
             </div>
-            <div class="flex gap-4 mt-8">
-                <button onclick="closeModal()" class="flex-1 text-slate-500 font-bold uppercase text-xs">Cancelar</button>
-                <button id="btnSalvar" class="flex-1 bg-sky-600 p-4 rounded-2xl font-black text-white hover:bg-sky-500 transition shadow-lg shadow-sky-900/20">SALVAR REGISTRO</button>
+            <div class="flex gap-4 mt-10">
+                <button onclick="hideModal()" class="flex-1 text-slate-500 font-bold">FECHAR</button>
+                <button id="btn-save" class="flex-1 bg-sky-600 p-4 rounded-2xl font-black text-white hover:bg-sky-500 transition shadow-xl shadow-sky-900/40">FINALIZAR</button>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-        // CONFIGURAÇÃO FIREBASE [Sua imagem image_1faa84.jpg]
         const firebaseConfig = {
             apiKey: "AIzaSyAteL8sXETQcYQvCoSMhsK2yQy_968pTb8",
             authDomain: "crm-vexus.firebaseapp.com",
@@ -135,103 +119,110 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        let currentTab = 'estoque';
-        let allData = [];
+        let dataStore = [];
 
-        window.openModal = () => document.getElementById('modal').classList.remove('hidden');
-        window.closeModal = () => document.getElementById('modal').classList.add('hidden');
+        // UI ACTIONS
+        window.showModal = () => document.getElementById('modal').classList.remove('hidden');
+        window.hideModal = () => document.getElementById('modal').classList.add('hidden');
+        
+        window.notify = (msg) => {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            t.classList.add('toast-active');
+            setTimeout(() => t.classList.remove('toast-active'), 3000);
+        };
 
-        // SALVAR
-        document.getElementById('btnSalvar').onclick = async () => {
-            const dias = parseInt(document.getElementById('vPrazo').value);
-            const vencimento = new Date();
-            vencimento.setDate(vencimento.getDate() + dias);
+        // FIREBASE ACTIONS
+        document.getElementById('btn-save').onclick = async () => {
+            const dias = parseInt(document.getElementById('m-prazo').value);
+            const alertDate = new Date();
+            alertDate.setDate(alertDate.getDate() + dias);
 
             const payload = {
-                carro: document.getElementById('vModelo').value,
-                preco: parseFloat(document.getElementById('vPreco').value),
-                status: document.getElementById('vStatus').value,
-                cliente: document.getElementById('cNome').value || "Nenhum",
-                dataEntrada: new Date().getTime(),
-                dataVencimento: vencimento.getTime()
+                carro: document.getElementById('m-carro').value,
+                preco: parseFloat(document.getElementById('m-preco').value),
+                cliente: document.getElementById('m-cliente').value,
+                zap: document.getElementById('m-zap').value,
+                status: 'estoque',
+                vencimento: alertDate.getTime(),
+                criado: new Date().getTime()
             };
 
-            if(payload.carro) {
-                await addDoc(collection(db, "nexus_master"), payload);
-                closeModal();
+            await addDoc(collection(db, "nexus_pro"), payload);
+            hideModal();
+            notify("Registro salvo na nuvem!");
+        };
+
+        window.venderCarro = async (id) => {
+            await updateDoc(doc(db, "nexus_pro", id), { status: 'vendido' });
+            notify("Parabéns pela venda!");
+        };
+
+        window.deletar = async (id) => {
+            if(confirm("Remover permanentemente?")) {
+                await deleteDoc(doc(db, "nexus_pro", id));
+                notify("Registro excluído.");
             }
         };
 
-        window.excluir = async (id) => { if(confirm("Confirmar baixa no sistema?")) await deleteDoc(doc(db, "nexus_master", id)); };
-
-        // RENDERIZAÇÃO
+        // RENDER ENGINE
         function render() {
-            const grid = document.getElementById('content-grid');
-            grid.innerHTML = '';
+            const feed = document.getElementById('feed-lista');
+            const alertas = document.getElementById('feed-alertas');
+            feed.innerHTML = '';
+            alertas.innerHTML = '';
+
+            let stats = { total: 0, alerts: 0, venv: 0 };
             const agora = new Date().getTime();
-            
-            let stats = { total: 0, leads: 0, alerts: 0, vendas: 0 };
 
-            allData.forEach(item => {
-                const isVencido = agora >= item.dataVencimento && item.status !== 'vendido';
-                
-                // Contabilidade para o Painel Admin
+            dataStore.forEach(item => {
                 stats.total++;
-                if(item.status === 'negociacao') stats.leads++;
-                if(isVencido) stats.alerts++;
-                if(item.status === 'vendido') stats.vendas++;
+                if(item.status === 'vendido') stats.venv++;
 
-                // Lógica de Abas
-                if(currentTab === 'alertas' && !isVencido) return;
-                if(currentTab === 'crm' && item.status === 'estoque') return;
+                const expirado = agora > item.vencimento && item.status !== 'vendido';
+                if(expirado) stats.alerts++;
 
-                grid.innerHTML += `
-                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-[24px] relative group hover:border-sky-500/50 transition-all ${isVencido ? 'alert-vencido' : ''}">
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="px-2 py-1 bg-slate-800 text-[9px] font-black rounded uppercase ${item.status === 'vendido' ? 'text-green-500' : 'text-sky-400'}">${item.status}</span>
-                            <button onclick="excluir('${item.id}')" class="text-slate-700 hover:text-red-500 transition opacity-0 group-hover:opacity-100"><i class="fas fa-trash"></i></button>
+                // Template principal
+                const card = `
+                <div class="flex items-center justify-between p-4 bg-slate-900/50 rounded-2xl border border-slate-800 hover:border-sky-500/50 transition group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-sky-500/10 rounded-xl flex items-center justify-center text-sky-500"><i class="fas fa-car"></i></div>
+                        <div>
+                            <h4 class="font-black text-white uppercase text-sm italic italic">${item.carro}</h4>
+                            <p class="text-[10px] text-slate-500 font-bold">CLIENTE: ${item.cliente.toUpperCase()}</p>
                         </div>
-                        
-                        <h3 class="text-xl font-black text-white mb-1 uppercase italic">${item.carro}</h3>
-                        <p class="text-2xl font-black text-sky-400 italic mb-4">R$ ${Number(item.preco).toLocaleString('pt-BR')}</p>
-                        
-                        <div class="space-y-2 pt-4 border-t border-slate-800/50">
-                            <div class="flex justify-between text-[10px] font-bold">
-                                <span class="text-slate-500 uppercase">Responsável:</span>
-                                <span class="text-slate-300">${item.cliente}</span>
-                            </div>
-                            <div class="flex justify-between text-[10px] font-bold">
-                                <span class="text-slate-500 uppercase">Status Alerta:</span>
-                                <span class="${isVencido ? 'text-red-500' : 'text-slate-500'}">${isVencido ? 'EXPIRADO' : 'AGUARDANDO'}</span>
-                            </div>
+                    </div>
+                    <div class="text-right flex items-center gap-6">
+                        <div>
+                            <p class="text-sky-400 font-black">R$ ${Number(item.preco).toLocaleString('pt-BR')}</p>
+                            <p class="text-[9px] uppercase font-bold text-slate-600">${item.status}</p>
                         </div>
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition">
+                            <button onclick="venderCarro('${item.id}')" class="bg-green-600 text-[10px] font-black p-2 rounded-lg"><i class="fas fa-check"></i></button>
+                            <button onclick="deletar('${item.id}')" class="bg-red-600 text-[10px] font-black p-2 rounded-lg"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+
+                if(expirado) {
+                    alertas.innerHTML += `
+                    <div class="p-4 bg-red-950/20 border border-red-500/30 rounded-2xl pulse-red">
+                        <p class="text-[10px] font-bold text-red-500 mb-1 uppercase tracking-widest"><i class="fas fa-clock"></i> Pendência Expirada</p>
+                        <h5 class="text-xs font-black text-white">${item.carro} - ${item.cliente}</h5>
+                        <button onclick="window.open('https://api.whatsapp.com/send?phone=55${item.zap}', '_blank')" class="mt-3 w-full bg-green-600 text-[10px] font-black py-2 rounded-lg">RESOLVER NO WHATSAPP</button>
                     </div>`;
+                }
+
+                feed.innerHTML += card;
             });
 
-            // Update Stats
-            document.getElementById('stat-total').innerText = stats.total;
-            document.getElementById('stat-leads').innerText = stats.leads;
-            document.getElementById('stat-alerts').innerText = stats.alerts;
-            document.getElementById('stat-vendas').innerText = stats.vendas;
+            document.getElementById('total-car').innerText = stats.total;
+            document.getElementById('total-alert').innerText = stats.alerts;
+            document.getElementById('total-venda').innerText = stats.venv;
         }
 
-        window.changeTab = (tab) => {
-            currentTab = tab;
-            document.getElementById('page-title').innerText = tab === 'estoque' ? 'Estoque de Veículos' : (tab === 'crm' ? 'Fluxo de Leads' : 'Alertas e Pendências');
-            
-            // Botões Style
-            ['btn-estoque', 'btn-crm', 'btn-alertas'].forEach(id => {
-                document.getElementById(id).classList.remove('bg-sky-600', 'text-white');
-                document.getElementById(id).classList.add('text-slate-400');
-            });
-            document.getElementById('btn-'+tab).classList.add('bg-sky-600', 'text-white');
-            document.getElementById('btn-'+tab).classList.remove('text-slate-400');
-            
-            render();
-        };
-
-        onSnapshot(query(collection(db, "nexus_master"), orderBy("dataEntrada", "desc")), (snapshot) => {
-            allData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        onSnapshot(query(collection(db, "nexus_pro"), orderBy("criado", "desc")), (snap) => {
+            dataStore = snap.docs.map(d => ({id: d.id, ...d.data()}));
             render();
         });
     </script>
