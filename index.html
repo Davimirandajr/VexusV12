@@ -3,142 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus V12 | Carbon Edition</title>
+    <title>Nexus V12 | Carbon Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #000000; font-family: 'Inter', sans-serif; color: #e2e8f0; overflow: hidden; }
-        .sidebar { background: #050505; border-right: 1px solid #1a1a1a; }
-        .nav-btn { transition: 0.3s; border-right: 3px solid transparent; color: #52525b; }
-        .nav-btn.active { color: #dc2626; border-right: 3px solid #dc2626; background: linear-gradient(to right, transparent, #dc262610); }
-        .page { display: none; height: calc(100vh - 80px); overflow-y: auto; }
-        .page.active { display: block; animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .card-nexus { background: #0a0a0a; border: 1px solid #1a1a1a; transition: 0.3s; }
-        .card-nexus:hover { border-color: #dc2626; }
-        /* Scrollbar customizada */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 10px; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@300;900&display=swap');
+        
+        body { background: #000; font-family: 'Inter', sans-serif; color: #fff; overflow: hidden; }
+        .font-racing { font-family: 'Orbitron', sans-serif; }
+        
+        .sidebar { background: #050505; border-right: 2px solid #111; shadow: 20px 0 50px rgba(0,0,0,0.9); }
+        .nav-btn { transition: 0.3s; position: relative; overflow: hidden; }
+        .nav-btn.active { color: #ff0000; background: rgba(255, 0, 0, 0.05); }
+        .nav-btn.active::before { content: ""; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: #ff0000; box-shadow: 0 0 15px #ff0000; }
+        
+        .card-car { background: linear-gradient(145deg, #0a0a0a, #111); border: 1px solid #222; transition: 0.4s; }
+        .card-car:hover { border-color: #ff0000; transform: translateY(-5px); box-shadow: 0 10px 30px -10px rgba(255, 0, 0, 0.3); }
+        
+        .btn-v12 { background: #ff0000; transition: 0.3s; text-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        .btn-v12:hover { background: #cc0000; box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
+
+        .page { display: none; height: calc(100vh - 80px); overflow-y: auto; padding: 40px; }
+        .page.active { display: block; animation: nitro 0.4s ease-out; }
+        @keyframes nitro { from { opacity: 0; filter: blur(10px); transform: scale(0.95); } to { opacity: 1; filter: blur(0); transform: scale(1); } }
+        
+        input, select { background: #0a0a0a !important; border: 1px solid #222 !important; color: white !important; }
+        input:focus { border-color: #ff0000 !important; outline: none; box-shadow: 0 0 10px rgba(255,0,0,0.2); }
     </style>
 </head>
 <body>
 
     <div class="flex h-screen">
-        <aside class="w-64 sidebar flex flex-col p-6">
-            <div class="mb-10 px-2">
-                <h1 class="text-2xl font-black italic text-white">NEXUS <span class="text-red-600">V12</span></h1>
-                <p class="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.3em]">Carbon Management</p>
+        <aside class="w-72 sidebar flex flex-col p-6">
+            <div class="mb-12">
+                <h1 class="font-racing text-3xl font-black italic tracking-tighter">NEXUS<span class="text-red-600">V12</span></h1>
+                <div class="h-1 w-12 bg-red-600 mt-1 shadow-[0_0_10px_#ff0000]"></div>
             </div>
 
             <nav class="space-y-2 flex-1">
-                <button onclick="navegar('dash')" id="btn-dash" class="nav-btn active w-full flex items-center gap-4 p-4 text-xs font-black uppercase">
-                    <i class="fas fa-grid-2"></i> Dashboard
+                <button onclick="navegar('estoque')" id="btn-estoque" class="nav-btn active w-full flex items-center gap-4 p-4 text-xs font-black uppercase tracking-widest">
+                    <i class="fas fa-car-side"></i> Gestão de Estoque
                 </button>
-                <button onclick="navegar('estoque')" id="btn-estoque" class="nav-btn w-full flex items-center gap-4 p-4 text-xs font-black uppercase">
-                    <i class="fas fa-car"></i> Estoque
-                </button>
-                <button onclick="navegar('crm')" id="btn-crm" class="nav-btn w-full flex items-center gap-4 p-4 text-xs font-black uppercase">
-                    <i class="fas fa-user-tag"></i> CRM / Leads
-                </button>
-                <button onclick="navegar('financas')" id="btn-financas" class="nav-btn w-full flex items-center gap-4 p-4 text-xs font-black uppercase">
-                    <i class="fas fa-vault"></i> Financeiro
+                <button onclick="navegar('clientes')" id="btn-clientes" class="nav-btn w-full flex items-center gap-4 p-4 text-xs font-black uppercase tracking-widest text-zinc-500">
+                    <i class="fas fa-user-friends"></i> Base de Clientes
                 </button>
             </nav>
 
-            <button onclick="abrirModal()" class="w-full bg-red-600 hover:bg-red-700 text-white p-4 rounded-xl font-black text-xs transition shadow-lg shadow-red-900/20">
-                + NOVO REGISTRO
-            </button>
+            <div class="space-y-3">
+                <button onclick="abrirModal('carro')" class="w-full btn-v12 p-4 rounded-lg font-black text-[10px] uppercase tracking-tighter italic">
+                    <i class="fas fa-plus-circle mr-2"></i> Adicionar Veículo
+                </button>
+                <button onclick="abrirModal('cliente')" class="w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-600 p-4 rounded-lg font-black text-[10px] uppercase tracking-tighter italic transition">
+                    <i class="fas fa-user-plus mr-2 text-red-600"></i> Adicionar Cliente
+                </button>
+            </div>
         </aside>
 
-        <main class="flex-1 flex flex-col">
-            <header class="h-20 border-b border-zinc-900 flex items-center justify-between px-10">
-                <h2 id="titulo-header" class="text-sm font-black uppercase tracking-[0.2em] text-zinc-500">Performance Global</h2>
-                <div class="flex items-center gap-4">
-                    <span class="text-[10px] font-bold text-red-600 animate-pulse">● SISTEMA OPERACIONAL</span>
-                </div>
+        <main class="flex-1 flex flex-col bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+            <header class="h-20 border-b border-zinc-900 flex items-center justify-between px-10 bg-black/50 backdrop-blur-md">
+                <h2 id="page-title" class="font-racing text-sm uppercase tracking-[0.3em] text-zinc-500">Garagem Ativa</h2>
+                <div class="w-2 h-2 bg-red-600 rounded-full animate-ping"></div>
             </header>
 
-            <div class="flex-1">
-                <section id="page-dash" class="page active p-10">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="card-nexus p-8 rounded-3xl">
-                            <p class="text-[10px] font-bold text-zinc-500 uppercase">Vendas no Mês</p>
-                            <h3 class="text-4xl font-black text-white mt-2">14</h3>
-                        </div>
-                        <div class="card-nexus p-8 rounded-3xl border-b-4 border-red-600">
-                            <p class="text-[10px] font-bold text-zinc-500 uppercase">Receita Bruta</p>
-                            <h3 class="text-4xl font-black text-white mt-2">R$ 1.2M</h3>
-                        </div>
-                        <div class="card-nexus p-8 rounded-3xl">
-                            <p class="text-[10px] font-bold text-zinc-500 uppercase">Pendências</p>
-                            <h3 class="text-4xl font-black text-red-600 mt-2">05</h3>
-                        </div>
-                    </div>
-                </section>
+            <section id="page-estoque" class="page active">
+                <div id="render-estoque" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+            </section>
 
-                <section id="page-estoque" class="page p-10">
-                    <div id="lista-estoque" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        </div>
-                </section>
-
-                <section id="page-crm" class="page p-10">
-                    <div class="grid grid-cols-3 gap-6 h-full">
-                        <div class="bg-zinc-950 p-6 rounded-3xl border border-zinc-900">
-                            <h4 class="text-xs font-black uppercase text-zinc-500 mb-6 italic">Fase: Contato</h4>
-                            <div id="crm-contato" class="space-y-4"></div>
-                        </div>
-                        <div class="bg-zinc-950 p-6 rounded-3xl border border-zinc-900">
-                            <h4 class="text-xs font-black uppercase text-orange-500 mb-6 italic">Fase: Proposta</h4>
-                            <div id="crm-proposta" class="space-y-4"></div>
-                        </div>
-                        <div class="bg-zinc-950 p-6 rounded-3xl border border-zinc-900">
-                            <h4 class="text-xs font-black uppercase text-red-600 mb-6 italic">Fase: Fechamento</h4>
-                            <div id="crm-fechado" class="space-y-4"></div>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="page-financas" class="page p-10">
-                    <div class="card-nexus rounded-3xl overflow-hidden">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="bg-zinc-900 text-[10px] font-black uppercase text-zinc-500">
-                                <tr>
-                                    <th class="p-5">Descrição</th>
-                                    <th class="p-5">Valor</th>
-                                    <th class="p-5">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-fin" class="text-sm"></tbody>
-                        </table>
-                    </div>
-                </section>
-            </div>
+            <section id="page-clientes" class="page">
+                <div class="bg-zinc-950 border border-zinc-900 rounded-3xl overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-red-600/10 text-[10px] font-black uppercase text-red-600">
+                            <tr>
+                                <th class="p-6">Cliente</th>
+                                <th class="p-6">Telefone</th>
+                                <th class="p-6">Interesse</th>
+                                <th class="p-6 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="render-clientes" class="text-sm divide-y divide-zinc-900"></tbody>
+                    </table>
+                </div>
+            </section>
         </main>
     </div>
 
-    <div id="modal" class="hidden fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4">
-        <div class="bg-zinc-900 p-8 rounded-[40px] w-full max-w-md border border-zinc-800">
-            <h2 class="text-xl font-black text-white mb-6 uppercase italic">Registrar Entrada</h2>
-            <div class="space-y-4">
-                <input type="text" id="in-modelo" placeholder="Veículo" class="w-full p-4 bg-black rounded-2xl outline-none border border-zinc-800 focus:border-red-600">
-                <input type="number" id="in-preco" placeholder="Preço (R$)" class="w-full p-4 bg-black rounded-2xl outline-none border border-zinc-800">
-                <select id="in-status" class="w-full p-4 bg-black rounded-2xl outline-none border border-zinc-800">
-                    <option value="estoque">Apenas Estoque</option>
-                    <option value="contato">Novo Lead (CRM)</option>
-                    <option value="fechado">Venda Finalizada</option>
-                </select>
+    <div id="modal-carro" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
+        <div class="bg-zinc-950 border border-zinc-800 p-10 rounded-[40px] w-full max-w-xl shadow-2xl">
+            <h2 class="font-racing text-2xl mb-8 italic text-red-600">Setup de Veículo</h2>
+            <input type="hidden" id="edit-id-carro">
+            <div class="grid grid-cols-2 gap-4">
+                <input type="text" id="c-marca" placeholder="Marca (Ex: BMW)" class="p-4 rounded-xl col-span-2">
+                <input type="text" id="c-modelo" placeholder="Modelo" class="p-4 rounded-xl col-span-2">
+                <input type="number" id="c-ano" placeholder="Ano" class="p-4 rounded-xl">
+                <input type="number" id="c-preco" placeholder="Preço R$" class="p-4 rounded-xl">
             </div>
-            <div class="flex gap-4 mt-8">
-                <button onclick="fecharModal()" class="flex-1 text-zinc-500 font-bold text-xs uppercase">Sair</button>
-                <button id="btn-confirmar" class="flex-1 bg-red-600 p-4 rounded-2xl font-black text-white text-xs uppercase">Gravar Dados</button>
+            <div class="flex gap-4 mt-10">
+                <button onclick="fecharModais()" class="flex-1 font-black text-zinc-600 uppercase text-xs">Abortar</button>
+                <button id="save-carro" class="flex-1 btn-v12 p-4 rounded-xl font-black uppercase text-xs">Salvar na Garagem</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-cliente" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
+        <div class="bg-zinc-950 border border-zinc-800 p-10 rounded-[40px] w-full max-w-xl shadow-2xl">
+            <h2 class="font-racing text-2xl mb-8 italic text-red-600">Cadastro de Lead</h2>
+            <input type="hidden" id="edit-id-cliente">
+            <div class="space-y-4">
+                <input type="text" id="l-nome" placeholder="Nome Completo" class="w-full p-4 rounded-xl">
+                <input type="text" id="l-fone" placeholder="WhatsApp" class="w-full p-4 rounded-xl">
+                <input type="text" id="l-carro" placeholder="Veículo de Interesse" class="w-full p-4 rounded-xl">
+            </div>
+            <div class="flex gap-4 mt-10">
+                <button onclick="fecharModais()" class="flex-1 font-black text-zinc-600 uppercase text-xs">Cancelar</button>
+                <button id="save-cliente" class="flex-1 btn-v12 p-4 rounded-xl font-black uppercase text-xs">Registrar Lead</button>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAteL8sXETQcYQvCoSMhsK2yQy_968pTb8",
@@ -151,75 +135,116 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        let store = [];
 
-        // NAVEGAÇÃO (O QUE FAZ CLICAR E FUNCIONAR)
+        // NAVEGAÇÃO
         window.navegar = (id) => {
-            // Remove classe active de todas as páginas e botões
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            
-            // Ativa a página e o botão certo
             document.getElementById('page-' + id).classList.add('active');
             document.getElementById('btn-' + id).classList.add('active');
-            
-            // Muda o título do topo
-            const titulos = { dash: 'Performance Global', estoque: 'Gestão de Pátio', crm: 'Fluxo de Vendas', financas: 'Controle de Caixa' };
-            document.getElementById('titulo-header').innerText = titulos[id];
+            document.getElementById('page-title').innerText = id === 'estoque' ? 'Garagem Ativa' : 'Base de Clientes';
         };
 
-        window.abrirModal = () => document.getElementById('modal').classList.remove('hidden');
-        window.fecharModal = () => document.getElementById('modal').classList.add('hidden');
+        window.abrirModal = (tipo) => {
+            fecharModais();
+            document.getElementById(`modal-${tipo}`).classList.remove('hidden');
+        };
+        window.fecharModais = () => {
+            document.getElementById('modal-carro').classList.add('hidden');
+            document.getElementById('modal-cliente').classList.add('hidden');
+            // Limpa IDs de edição
+            document.getElementById('edit-id-carro').value = '';
+            document.getElementById('edit-id-cliente').value = '';
+        };
 
-        // FIREBASE - SALVAR
-        document.getElementById('btn-confirmar').onclick = async () => {
-            const docData = {
-                modelo: document.getElementById('in-modelo').value,
-                preco: parseFloat(document.getElementById('in-preco').value),
-                status: document.getElementById('in-status').value,
-                data: new Date().getTime()
+        // --- LÓGICA DE ESTOQUE ---
+        document.getElementById('save-carro').onclick = async () => {
+            const id = document.getElementById('edit-id-carro').value;
+            const data = {
+                marca: document.getElementById('c-marca').value,
+                modelo: document.getElementById('c-modelo').value,
+                ano: document.getElementById('c-ano').value,
+                preco: parseFloat(document.getElementById('c-preco').value),
+                ts: new Date().getTime()
             };
-            await addDoc(collection(db, "nexus_carbon"), docData);
-            fecharModal();
+
+            if(id) await updateDoc(doc(db, "v12_carros", id), data);
+            else await addDoc(collection(db, "v12_carros"), data);
+            fecharModais();
         };
 
-        // RENDERIZADOR
-        function render() {
-            const gridEstoque = document.getElementById('lista-estoque');
-            const crmC = document.getElementById('crm-contato');
-            const crmF = document.getElementById('crm-fechado');
-            const tabFin = document.getElementById('tabela-fin');
-
-            gridEstoque.innerHTML = ''; crmC.innerHTML = ''; crmF.innerHTML = ''; tabFin.innerHTML = '';
-
-            store.forEach(item => {
-                const card = `
-                    <div class="card-nexus p-6 rounded-3xl group">
-                        <p class="text-[9px] font-black text-red-600 mb-2 uppercase">${item.status}</p>
-                        <h4 class="text-white font-black italic uppercase">${item.modelo}</h4>
-                        <p class="text-xl font-black text-zinc-400 mt-2">R$ ${item.preco.toLocaleString()}</p>
-                        <button onclick="deletar('${item.id}')" class="mt-4 text-[10px] text-zinc-800 group-hover:text-red-600 transition uppercase font-bold">Remover</button>
+        onSnapshot(query(collection(db, "v12_carros"), orderBy("ts", "desc")), (snap) => {
+            const container = document.getElementById('render-estoque');
+            container.innerHTML = '';
+            snap.forEach(d => {
+                const c = d.data();
+                container.innerHTML += `
+                    <div class="card-car p-6 rounded-[32px] group relative">
+                        <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition">
+                            <button onclick="prepararEdicaoCarro('${d.id}', '${c.marca}', '${c.modelo}', '${c.ano}', '${c.preco}')" class="text-zinc-500 hover:text-white"><i class="fas fa-edit"></i></button>
+                            <button onclick="deletarItem('v12_carros', '${d.id}')" class="text-zinc-800 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <p class="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">${c.marca}</p>
+                        <h3 class="font-racing text-xl italic uppercase text-white">${c.modelo}</h3>
+                        <p class="text-zinc-600 text-[10px] font-bold mt-1">ANO: ${c.ano}</p>
+                        <div class="mt-6 pt-4 border-t border-zinc-900">
+                            <span class="text-2xl font-black text-white italic">R$ ${c.preco.toLocaleString()}</span>
+                        </div>
                     </div>`;
+            });
+        });
 
-                if(item.status === 'estoque') gridEstoque.innerHTML += card;
-                if(item.status === 'contato') crmC.innerHTML += card;
-                if(item.status === 'fechado') crmF.innerHTML += card;
+        window.prepararEdicaoCarro = (id, marca, modelo, ano, preco) => {
+            abrirModal('carro');
+            document.getElementById('edit-id-carro').value = id;
+            document.getElementById('c-marca').value = marca;
+            document.getElementById('c-modelo').value = modelo;
+            document.getElementById('c-ano').value = ano;
+            document.getElementById('c-preco').value = preco;
+        };
 
-                tabFin.innerHTML += `
-                    <tr class="border-b border-zinc-900 hover:bg-zinc-950 transition">
-                        <td class="p-5 font-bold uppercase italic">${item.modelo}</td>
-                        <td class="p-5 font-black text-red-600">R$ ${item.preco.toLocaleString()}</td>
-                        <td class="p-5 text-[10px] uppercase font-bold text-zinc-600">${item.status}</td>
+        // --- LÓGICA DE CLIENTES ---
+        document.getElementById('save-cliente').onclick = async () => {
+            const id = document.getElementById('edit-id-cliente').value;
+            const data = {
+                nome: document.getElementById('l-nome').value,
+                fone: document.getElementById('l-fone').value,
+                carro: document.getElementById('l-carro').value,
+                ts: new Date().getTime()
+            };
+
+            if(id) await updateDoc(doc(db, "v12_clientes", id), data);
+            else await addDoc(collection(db, "v12_clientes"), data);
+            fecharModais();
+        };
+
+        onSnapshot(query(collection(db, "v12_clientes"), orderBy("ts", "desc")), (snap) => {
+            const container = document.getElementById('render-clientes');
+            container.innerHTML = '';
+            snap.forEach(d => {
+                const l = d.data();
+                container.innerHTML += `
+                    <tr class="hover:bg-red-600/5 transition group">
+                        <td class="p-6 font-bold text-white uppercase">${l.nome}</td>
+                        <td class="p-6 text-zinc-500 font-mono">${l.fone}</td>
+                        <td class="p-6"><span class="bg-zinc-900 px-3 py-1 rounded text-[10px] font-black text-red-600 uppercase">${l.carro}</span></td>
+                        <td class="p-6 text-right space-x-3">
+                            <button onclick="prepararEdicaoCliente('${d.id}', '${l.nome}', '${l.fone}', '${l.carro}')" class="text-zinc-700 hover:text-white"><i class="fas fa-edit"></i></button>
+                            <button onclick="deletarItem('v12_clientes', '${d.id}')" class="text-zinc-800 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                        </td>
                     </tr>`;
             });
-        }
-
-        window.deletar = async (id) => { await deleteDoc(doc(db, "nexus_carbon", id)); };
-
-        onSnapshot(query(collection(db, "nexus_carbon"), orderBy("data", "desc")), (snap) => {
-            store = snap.docs.map(d => ({id: d.id, ...d.data()}));
-            render();
         });
+
+        window.prepararEdicaoCliente = (id, nome, fone, carro) => {
+            abrirModal('cliente');
+            document.getElementById('edit-id-cliente').value = id;
+            document.getElementById('l-nome').value = nome;
+            document.getElementById('l-fone').value = fone;
+            document.getElementById('l-carro').value = carro;
+        };
+
+        window.deletarItem = async (colecao, id) => { if(confirm("Deseja deletar este registro permanentemente?")) await deleteDoc(doc(db, colecao, id)); };
     </script>
 </body>
 </html>
