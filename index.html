@@ -3,86 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus V12 | Gestão 360</title>
+    <title>Nexus V12 | Gestão de Pendências</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(56, 189, 248, 0.1); }
-        .tab-active { border-bottom: 3px solid #38bdf8; color: #38bdf8; }
+        .card-pendente { animation: alert-glow 1.5s infinite alternate; border: 2px solid #ef4444 !important; }
+        @keyframes alert-glow { 
+            from { box-shadow: 0 0 5px #7f1d1d; } 
+            to { box-shadow: 0 0 20px #ef4444; } 
+        }
+        .glass-panel { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-200 font-sans">
+<body class="bg-[#050810] text-slate-300 font-sans">
 
-    <div class="flex h-screen overflow-hidden">
-        <aside class="w-72 bg-black flex flex-col border-r border-slate-800 p-6">
-            <div class="mb-10 text-center">
-                <h1 class="text-3xl font-black text-sky-400 italic italic">NEXUS V12</h1>
-                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Enterprise Solution</p>
-            </div>
-
+    <div class="flex h-screen">
+        <aside class="w-72 bg-black border-r border-slate-800 flex flex-col p-6">
+            <h1 class="text-2xl font-black text-sky-400 italic mb-10">NEXUS V12</h1>
+            
             <nav class="space-y-2 flex-1">
-                <button onclick="changeTab('showroom')" id="tab-showroom" class="w-full flex items-center gap-3 p-4 rounded-xl bg-sky-600 font-bold text-white transition">
-                    <i class="fas fa-users-cog"></i> Gestão de Clientes
+                <button onclick="aba('todos')" class="w-full flex justify-between items-center p-4 rounded-xl bg-slate-900 hover:bg-slate-800 transition">
+                    <span><i class="fas fa-list mr-2"></i> Todos os Leads</span>
+                    <span id="badge-total" class="bg-slate-700 px-2 py-1 rounded text-[10px]">0</span>
                 </button>
-                <button onclick="changeTab('estoque')" id="tab-estoque" class="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-slate-900 transition text-slate-400">
-                    <i class="fas fa-car-side"></i> Estoque Real
+                <button onclick="aba('alertas')" class="w-full flex justify-between items-center p-4 rounded-xl bg-red-950/30 text-red-500 font-bold border border-red-900/50">
+                    <span><i class="fas fa-bell mr-2"></i> Pendências Vencidas</span>
+                    <span id="badge-alertas" class="bg-red-600 text-white px-2 py-1 rounded text-[10px] animate-bounce">0</span>
                 </button>
             </nav>
 
-            <div class="mt-auto p-4 glass rounded-2xl border border-slate-800">
-                <p class="text-[10px] font-bold text-sky-500 uppercase mb-1">Status do Sistema</p>
-                <p class="text-xs text-slate-400 flex items-center gap-2">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Sincronizado com Nuvem
-                </p>
+            <div class="p-4 rounded-2xl border border-slate-800 bg-slate-900/50">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Filtro de Admin</p>
+                <p class="text-[11px] text-slate-400 mt-1">Alertas automáticos baseados no prazo definido pelo consultor.</p>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="p-6 bg-slate-900/50 border-bottom border-slate-800 flex justify-between items-center">
-                <div class="flex gap-4">
-                    <input type="text" id="filtroBusca" oninput="filtrar()" placeholder="Buscar cliente ou carro..." class="bg-slate-800 border-none rounded-lg px-4 py-2 w-64 focus:ring-2 ring-sky-500 outline-none">
-                    <select id="filtroStatus" onchange="filtrar()" class="bg-slate-800 rounded-lg px-4 py-2 outline-none">
-                        <option value="todos">Todos os Status</option>
-                        <option value="quente">Lead Quente</option>
-                        <option value="negociacao">Em Negociação</option>
-                        <option value="vendido">Venda Concluída</option>
-                    </select>
+            <header class="p-8 flex justify-between items-center border-b border-slate-800 bg-[#080c16]">
+                <div>
+                    <h2 class="text-3xl font-black text-white italic">Monitor de Operações</h2>
+                    <p class="text-slate-500 text-sm">Controle de prazos e pós-venda.</p>
                 </div>
-                <button onclick="abrirModal()" class="bg-white text-black px-6 py-2 rounded-lg font-bold hover:bg-sky-400 transition">
-                    + NOVO REGISTRO
+                <button onclick="document.getElementById('modal').classList.remove('hidden')" class="bg-sky-500 text-white px-8 py-4 rounded-2xl font-black hover:bg-sky-400 transition shadow-xl shadow-sky-500/20">
+                    + CADASTRAR COM ALERTA
                 </button>
             </header>
 
-            <section id="conteudo" class="p-8 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <section id="grid-cards" class="p-8 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 </section>
         </main>
     </div>
 
-    <div id="modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50">
-        <div class="bg-slate-900 p-8 rounded-3xl w-full max-w-2xl border border-slate-800">
-            <h2 class="text-2xl font-black mb-6 text-sky-400">Nova Oportunidade de Venda</h2>
+    <div id="modal" class="hidden fixed inset-0 bg-black/95 flex items-center justify-center p-4 z-50 backdrop-blur-md">
+        <div class="bg-slate-900 p-8 rounded-[40px] w-full max-w-xl border border-slate-800 shadow-2xl">
+            <h2 class="text-2xl font-black mb-6 text-sky-400">Nova Venda / Pendência</h2>
             <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-4">
-                    <p class="text-xs font-bold text-slate-500 uppercase">Dados do Cliente</p>
-                    <input type="text" id="cNome" placeholder="Nome Completo" class="w-full p-3 bg-slate-800 rounded-xl outline-none border border-slate-700">
-                    <input type="text" id="cTelefone" placeholder="WhatsApp / Telefone" class="w-full p-3 bg-slate-800 rounded-xl outline-none border border-slate-700">
-                </div>
-                <div class="space-y-4">
-                    <p class="text-xs font-bold text-slate-500 uppercase">Veículo de Interesse</p>
-                    <input type="text" id="vModelo" placeholder="Modelo do Carro" class="w-full p-3 bg-slate-800 rounded-xl outline-none border border-slate-700">
-                    <input type="number" id="vPreco" placeholder="Valor R$" class="w-full p-3 bg-slate-800 rounded-xl outline-none border border-slate-700">
-                </div>
-                <div class="col-span-2">
-                    <select id="vStatus" class="w-full p-3 bg-slate-800 rounded-xl outline-none border border-slate-700">
-                        <option value="quente">Lead Quente (Interesse)</option>
-                        <option value="negociacao">Negociação Iniciada</option>
-                        <option value="vendido">Vendido (Remover do Estoque)</option>
-                    </select>
+                <input type="text" id="cNome" placeholder="Nome do Cliente" class="p-4 bg-slate-800 rounded-2xl outline-none border border-slate-700 col-span-2">
+                <input type="text" id="cZap" placeholder="WhatsApp (com DDD)" class="p-4 bg-slate-800 rounded-2xl outline-none border border-slate-700">
+                <input type="text" id="vCarro" placeholder="Veículo" class="p-4 bg-slate-800 rounded-2xl outline-none border border-slate-700">
+                
+                <div class="col-span-2 p-4 bg-sky-500/5 rounded-2xl border border-sky-500/20">
+                    <label class="text-[10px] font-bold text-sky-500 uppercase block mb-2">Emitir alerta de pendência em quantos dias?</label>
+                    <div class="flex items-center gap-4">
+                        <input type="number" id="prazoDias" value="7" class="w-20 p-3 bg-slate-800 rounded-xl text-center font-bold text-white border border-sky-500">
+                        <span class="text-sm text-slate-400 font-medium">Dias após o cadastro</span>
+                    </div>
                 </div>
             </div>
+
             <div class="flex gap-4 mt-8">
-                <button onclick="fecharModal()" class="flex-1 text-slate-500 font-bold uppercase text-xs">Descartar</button>
-                <button id="btnSalvar" class="flex-1 bg-sky-600 p-4 rounded-xl font-black hover:bg-sky-500 transition">SALVAR NO CRM</button>
+                <button onclick="document.getElementById('modal').classList.add('hidden')" class="flex-1 text-slate-500 font-bold uppercase text-xs">Cancelar</button>
+                <button id="btnSalvar" class="flex-1 bg-sky-600 p-4 rounded-2xl font-black shadow-lg">ATIVAR MONITORAMENTO</button>
             </div>
         </div>
     </div>
@@ -102,81 +93,78 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        let currentTab = 'showroom';
-        let fullData = [];
+        let dadosCrm = [];
+        let abaAtiva = 'todos';
 
-        window.abrirModal = () => document.getElementById('modal').classList.remove('hidden');
-        window.fecharModal = () => document.getElementById('modal').classList.add('hidden');
-
-        // Alternar entre abas
-        window.changeTab = (tab) => {
-            currentTab = tab;
-            document.getElementById('tab-showroom').className = tab === 'showroom' ? 'w-full flex items-center gap-3 p-4 rounded-xl bg-sky-600 font-bold text-white' : 'w-full flex items-center gap-3 p-4 rounded-xl hover:bg-slate-900 transition text-slate-400';
-            document.getElementById('tab-estoque').className = tab === 'estoque' ? 'w-full flex items-center gap-3 p-4 rounded-xl bg-sky-600 font-bold text-white' : 'w-full flex items-center gap-3 p-4 rounded-xl hover:bg-slate-900 transition text-slate-400';
-            renderizar();
-        };
-
-        // Salvar com dados estendidos
+        // SALVAR COM DATA DE ALERTA CALCULADA
         document.getElementById('btnSalvar').onclick = async () => {
+            const dias = parseInt(document.getElementById('prazoDias').value);
+            const agora = new Date();
+            const dataAlerta = new Date();
+            dataAlerta.setDate(agora.getDate() + dias); // Calcula a data futura do alerta
+
             const data = {
                 cliente: document.getElementById('cNome').value,
-                contato: document.getElementById('cTelefone').value,
-                carro: document.getElementById('vModelo').value,
-                preco: parseFloat(document.getElementById('vPreco').value),
-                status: document.getElementById('vStatus').value,
-                data: new Date()
+                whatsapp: document.getElementById('cZap').value,
+                carro: document.getElementById('vCarro').value,
+                dataCadastro: agora.getTime(),
+                dataVencimento: dataAlerta.getTime(), // Salva o timestamp do vencimento
+                status: 'ativo'
             };
+
             if(data.cliente && data.carro) {
-                await addDoc(collection(db, "leads"), data);
-                fecharModal();
+                await addDoc(collection(db, "vendas_v12"), data);
+                document.getElementById('modal').classList.add('hidden');
             }
         };
 
-        window.excluir = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "leads", id)); };
+        window.excluir = async (id) => { if(confirm("Resolver pendência e excluir?")) await deleteDoc(doc(db, "vendas_v12", id)); };
 
-        // Sistema de Renderização e Filtro
-        function renderizar(dadosFiltrados = null) {
-            const container = document.getElementById('conteudo');
-            container.innerHTML = '';
-            const lista = dadosFiltrados || fullData;
+        function renderizar() {
+            const grid = document.getElementById('grid-cards');
+            grid.innerHTML = '';
+            const agora = new Date().getTime();
+            let countAlertas = 0;
 
-            lista.forEach(item => {
-                // Se for aba de estoque, só mostra o que não foi vendido (opcional)
-                if(currentTab === 'estoque' && item.status === 'vendido') return;
+            dadosCrm.forEach(item => {
+                const isVencido = agora >= item.dataVencimento;
+                if(isVencido) countAlertas++;
 
-                container.innerHTML += `
-                    <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 hover:border-sky-500/50 transition group relative">
-                        <button onclick="excluir('${item.id}')" class="absolute top-4 right-4 text-slate-700 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-trash"></i></button>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="px-3 py-1 bg-sky-500/10 text-sky-400 text-[10px] font-bold rounded-full uppercase">${item.status}</span>
-                            <span class="text-[10px] text-slate-600">${new Date(item.data?.seconds*1000).toLocaleDateString()}</span>
+                if(abaAtiva === 'alertas' && !isVencido) return;
+
+                const diasRestantes = Math.ceil((item.dataVencimento - agora) / (1000 * 60 * 60 * 24));
+
+                grid.innerHTML += `
+                    <div class="p-6 rounded-[32px] bg-slate-900 border border-slate-800 transition-all ${isVencido ? 'card-pendente bg-red-950/10' : ''}">
+                        <div class="flex justify-between items-start mb-6">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${isVencido ? 'bg-red-500 text-white' : 'bg-green-500/10 text-green-500'}">
+                                ${isVencido ? 'ALERTA DE PENDÊNCIA' : `Faltam ${diasRestantes} dias`}
+                            </span>
+                            <button onclick="excluir('${item.id}')" class="text-slate-600 hover:text-white"><i class="fas fa-check-circle text-xl"></i></button>
                         </div>
-                        <h3 class="text-xl font-black mb-1">${item.carro}</h3>
-                        <p class="text-sky-400 font-black text-2xl italic mb-4">R$ ${Number(item.preco).toLocaleString('pt-BR')}</p>
-                        <div class="pt-4 border-t border-slate-800">
-                            <p class="text-xs text-slate-500 uppercase font-bold mb-1">Interessado:</p>
-                            <p class="font-bold text-white">${item.cliente}</p>
-                            <p class="text-xs text-sky-600"><i class="fab fa-whatsapp"></i> ${item.contato}</p>
+
+                        <h3 class="text-2xl font-black text-white mb-1">${item.carro}</h3>
+                        <p class="text-slate-500 text-xs mb-6 font-bold uppercase tracking-widest italic">${item.cliente}</p>
+
+                        <div class="flex gap-2">
+                            <button onclick="window.open('https://api.whatsapp.com/send?phone=55${item.whatsapp}', '_blank')" class="flex-1 bg-green-600 p-4 rounded-2xl text-white font-black text-sm hover:bg-green-500 transition">
+                                <i class="fab fa-whatsapp mr-2"></i> COBRAR
+                            </button>
+                            <button class="w-14 bg-slate-800 rounded-2xl text-slate-400 hover:text-sky-400 transition">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
+
+            document.getElementById('badge-total').innerText = dadosCrm.length;
+            document.getElementById('badge-alertas').innerText = countAlertas;
         }
 
-        window.filtrar = () => {
-            const busca = document.getElementById('filtroBusca').value.toLowerCase();
-            const status = document.getElementById('filtroStatus').value;
-            
-            const filtrados = fullData.filter(d => {
-                const matchBusca = d.cliente.toLowerCase().includes(busca) || d.carro.toLowerCase().includes(busca);
-                const matchStatus = status === 'todos' || d.status === status;
-                return matchBusca && matchStatus;
-            });
-            renderizar(filtrados);
-        };
+        window.aba = (a) => { abaAtiva = a; renderizar(); };
 
-        onSnapshot(query(collection(db, "leads"), orderBy("data", "desc")), (snapshot) => {
-            fullData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        onSnapshot(query(collection(db, "vendas_v12"), orderBy("dataVencimento", "asc")), (snapshot) => {
+            dadosCrm = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             renderizar();
         });
     </script>
