@@ -3,61 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus V12 | CRM</title>
+    <title>Nexus V12 | CRM Automotive Cloud</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .kanban-column { min-height: 70vh; background: rgba(15, 23, 42, 0.5); border-radius: 20px; padding: 15px; border: 1px solid #1e293b; }
+        .card-crm { cursor: grab; transition: all 0.3s; background: #0f172a; border: 1px solid #1e293b; }
+        .card-crm:hover { transform: translateY(-5px); border-color: #38bdf8; box-shadow: 0 10px 20px -5px rgba(56, 189, 248, 0.2); }
+    </style>
 </head>
-<body class="bg-slate-900 text-white font-sans">
+<body class="bg-slate-950 text-white font-sans">
 
     <div class="flex h-screen overflow-hidden">
         <aside class="w-64 bg-black p-6 flex flex-col border-r border-slate-800">
-            <h1 class="text-xl font-black mb-10 text-sky-400 italic">
-                <i class="fas fa-car"></i> NEXUS V12
-            </h1>
+            <div class="mb-10">
+                <h1 class="text-2xl font-black text-sky-400 italic flex items-center gap-2">
+                    <i class="fas fa-car-side"></i> NEXUS V12
+                </h1>
+                <p class="text-[9px] text-slate-500 font-bold uppercase tracking-[0.2em]">Automotive Intelligence</p>
+            </div>
             
-            <nav class="space-y-4 flex-1">
-                <button onclick="window.showPage('showroom')" id="btn-showroom" class="w-full text-left p-4 rounded-xl bg-sky-600 font-bold transition">
-                    <i class="fas fa-th-large w-6"></i> Showroom
+            <nav class="space-y-3 flex-1">
+                <button onclick="showPage('showroom')" id="nav-showroom" class="w-full text-left p-4 rounded-xl bg-sky-600 font-bold transition flex items-center gap-3">
+                    <i class="fas fa-filter text-sm"></i> Showroom
                 </button>
-                <button onclick="window.showPage('estoque')" id="btn-estoque" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 transition">
-                    <i class="fas fa-list w-6"></i> Estoque
+                <button onclick="showPage('estoque')" id="nav-estoque" class="w-full text-left p-4 rounded-xl hover:bg-slate-900 transition flex items-center gap-3 text-slate-400">
+                    <i class="fas fa-warehouse text-sm"></i> Estoque
                 </button>
             </nav>
 
-            <div class="mt-auto pt-6 border-t border-slate-800 text-center">
-                <span class="text-[10px] text-green-500 font-bold uppercase tracking-widest">Vexus Cloud Online</span>
+            <div class="mt-auto pt-6 border-t border-slate-800">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Vexus Cloud Online</span>
+                </div>
             </div>
         </aside>
 
-        <main class="flex-1 p-10 overflow-y-auto">
-            <div id="header-dinamico" class="flex justify-between items-center mb-10">
-                <h2 id="page-title" class="text-3xl font-black italic">Showroom Cloud</h2>
-                <button onclick="document.getElementById('modal').classList.remove('hidden')" class="bg-white text-black px-8 py-3 rounded-xl font-black hover:bg-sky-400 transition shadow-lg">
-                    + NOVO CARRO
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div id="header-area" class="flex justify-between items-center mb-10">
+                <div>
+                    <h2 id="page-title" class="text-3xl font-black tracking-tight">Showroom de Vendas</h2>
+                    <p class="text-slate-500 text-sm">Gestão de leads e oportunidades em tempo real.</p>
+                </div>
+                <button onclick="document.getElementById('modal').classList.remove('hidden')" class="bg-white text-black px-8 py-4 rounded-2xl font-black hover:bg-sky-400 hover:text-white transition shadow-2xl">
+                    + CADASTRAR VEÍCULO
                 </button>
             </div>
             
-            <div id="lista-carros" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div id="conteudo-dinamico">
                 </div>
         </main>
     </div>
 
-    <div id="modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50">
-        <div class="bg-slate-800 p-8 rounded-3xl w-full max-w-md border border-slate-700 shadow-2xl">
-            <h2 class="text-2xl font-bold mb-6 text-sky-400">Cadastrar Veículo</h2>
-            <input type="text" id="carNome" placeholder="Modelo do Carro" class="w-full p-4 mb-4 bg-slate-700 rounded-xl outline-none focus:ring-2 ring-sky-500">
-            <input type="number" id="carPreco" placeholder="Preço (R$)" class="w-full p-4 mb-6 bg-slate-700 rounded-xl outline-none focus:ring-2 ring-sky-500">
-            <div class="flex gap-4">
-                <button onclick="document.getElementById('modal').classList.add('hidden')" class="flex-1 text-slate-400 font-bold">CANCELAR</button>
-                <button id="btnSalvar" class="flex-1 bg-sky-600 p-4 rounded-xl font-black">SALVAR</button>
+    <div id="modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 p-8 rounded-3xl w-full max-w-md border border-slate-800 shadow-2xl">
+            <h2 class="text-2xl font-black mb-6 text-sky-400">Novo Lead / Veículo</h2>
+            <div class="space-y-4">
+                <input type="text" id="carNome" placeholder="Modelo do Carro" class="w-full p-4 bg-slate-800 rounded-xl outline-none border border-slate-700 focus:border-sky-500">
+                <input type="number" id="carPreco" placeholder="Valor (R$)" class="w-full p-4 bg-slate-800 rounded-xl outline-none border border-slate-700 focus:border-sky-500">
+                <select id="carStatus" class="w-full p-4 bg-slate-800 rounded-xl outline-none border border-slate-700 focus:border-sky-500">
+                    <option value="lead">Lead (Entrada)</option>
+                    <option value="negociacao">Em Negociação</option>
+                    <option value="vendido">Vendido / Entrega</option>
+                </select>
+            </div>
+            <div class="flex gap-4 mt-8">
+                <button onclick="document.getElementById('modal').classList.add('hidden')" class="flex-1 text-slate-500 font-bold uppercase text-xs">Cancelar</button>
+                <button id="btnSalvar" class="flex-1 bg-sky-600 p-4 rounded-xl font-black shadow-lg hover:bg-sky-500 transition">SALVAR NA NUVEM</button>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
+        // Configuração image_1faa84.jpg
         const firebaseConfig = {
             apiKey: "AIzaSyAteL8sXETQcYQvCoSMhsK2yQy_968pTb8",
             authDomain: "crm-vexus.firebaseapp.com",
@@ -70,56 +92,96 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         let paginaAtual = 'showroom';
+        let dadosLocais = [];
 
-        // --- Navegação entre as 2 opções ---
-        window.showPage = (pagina) => {
-            paginaAtual = pagina;
-            document.getElementById('page-title').innerText = pagina === 'showroom' ? 'Showroom Cloud' : 'Estoque Completo';
+        // --- Navegação ---
+        window.showPage = (p) => {
+            paginaAtual = p;
+            document.getElementById('page-title').innerText = p === 'showroom' ? 'Showroom de Vendas' : 'Estoque Inteligente';
             
-            // Ajuste visual dos botões
-            document.getElementById('btn-showroom').className = pagina === 'showroom' ? 'w-full text-left p-4 rounded-xl bg-sky-600 font-bold' : 'w-full text-left p-4 rounded-xl hover:bg-slate-800';
-            document.getElementById('btn-estoque').className = pagina === 'estoque' ? 'w-full text-left p-4 rounded-xl bg-sky-600 font-bold' : 'w-full text-left p-4 rounded-xl hover:bg-slate-800';
+            // Estilo dos botões
+            document.getElementById('nav-showroom').className = p === 'showroom' ? 'w-full text-left p-4 rounded-xl bg-sky-600 font-bold flex items-center gap-3' : 'w-full text-left p-4 rounded-xl hover:bg-slate-900 transition flex items-center gap-3 text-slate-400';
+            document.getElementById('nav-estoque').className = p === 'estoque' ? 'w-full text-left p-4 rounded-xl bg-sky-600 font-bold flex items-center gap-3' : 'w-full text-left p-4 rounded-xl hover:bg-slate-900 transition flex items-center gap-3 text-slate-400';
             
             renderizar();
         };
 
-        // --- Salvar dados ---
+        // --- Funções de Banco de Dados ---
         document.getElementById('btnSalvar').onclick = async () => {
             const nome = document.getElementById('carNome').value;
             const preco = document.getElementById('carPreco').value;
+            const status = document.getElementById('carStatus').value;
             if(nome && preco) {
-                await addDoc(collection(db, "leads"), { nome, preco, data: new Date() });
+                await addDoc(collection(db, "leads"), { nome, preco: parseFloat(preco), status, data: new Date() });
                 document.getElementById('modal').classList.add('hidden');
-                document.getElementById('carNome').value = '';
-                document.getElementById('carPreco').value = '';
             }
         };
 
-        // --- Escutar Banco de Dados ---
+        window.excluirCarro = async (id) => {
+            if(confirm("Deseja remover este registro?")) await deleteDoc(doc(db, "leads", id));
+        };
+
+        // --- Renderização Dinâmica ---
         function renderizar() {
-            onSnapshot(query(collection(db, "leads"), orderBy("data", "desc")), (snapshot) => {
-                const lista = document.getElementById('lista-carros');
-                lista.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const car = doc.data();
-                    // Layout diferente dependendo da página
-                    if(paginaAtual === 'showroom') {
-                        lista.innerHTML += `
-                            <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl">
-                                <h3 class="text-xl font-bold">${car.nome}</h3>
-                                <p class="text-sky-400 font-black text-2xl mt-2 italic">R$ ${Number(car.preco).toLocaleString('pt-BR')}</p>
-                            </div>`;
-                    } else {
-                        lista.innerHTML += `
-                            <div class="bg-black/40 p-4 rounded-xl border-l-4 border-sky-500 flex justify-between items-center">
-                                <span class="font-bold">${car.nome}</span>
-                                <span class="text-sky-400 font-black">R$ ${Number(car.preco).toLocaleString('pt-BR')}</span>
-                            </div>`;
-                    }
+            const container = document.getElementById('conteudo-dinamico');
+            container.innerHTML = '';
+
+            if(paginaAtual === 'showroom') {
+                // Layout Kanban para CRM
+                container.className = "grid grid-cols-1 md:grid-cols-3 gap-6";
+                const colunas = [
+                    { id: 'lead', nome: 'Novas Entradas' },
+                    { id: 'negociacao', nome: 'Negociação' },
+                    { id: 'vendido', nome: 'Vendidos' }
+                ];
+
+                colunas.forEach(col => {
+                    const cards = dadosLocais.filter(d => d.status === col.id);
+                    container.innerHTML += `
+                        <div class="kanban-column">
+                            <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4 flex justify-between">
+                                ${col.nome} <span>${cards.length}</span>
+                            </h3>
+                            <div class="space-y-4">
+                                ${cards.map(c => `
+                                    <div class="card-crm p-5 rounded-2xl shadow-lg relative group">
+                                        <button onclick="excluirCarro('${c.id}')" class="absolute top-2 right-2 text-slate-700 hover:text-red-500 opacity-0 group-hover:opacity-100 transition"><i class="fas fa-times-circle"></i></button>
+                                        <h4 class="font-bold text-lg">${c.nome}</h4>
+                                        <p class="text-sky-400 font-black mt-2 italic">R$ ${Number(c.preco).toLocaleString('pt-BR')}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
                 });
-            });
+            } else {
+                // Layout de Estoque/Lista
+                container.className = "space-y-4";
+                dadosLocais.forEach(c => {
+                    container.innerHTML += `
+                        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 flex justify-between items-center hover:border-sky-500/50 transition">
+                            <div class="flex items-center gap-6">
+                                <div class="w-12 h-12 bg-sky-500/10 rounded-xl flex items-center justify-center text-sky-500">
+                                    <i class="fas fa-car text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-xl">${c.nome}</h3>
+                                    <p class="text-xs text-slate-500 uppercase font-bold tracking-widest">${c.status}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-black text-white italic">R$ ${Number(c.preco).toLocaleString('pt-BR')}</p>
+                                <button onclick="excluirCarro('${c.id}')" class="text-[10px] text-red-500 font-bold uppercase mt-2 hover:underline">Remover do Estoque</button>
+                            </div>
+                        </div>`;
+                });
+            }
         }
-        renderizar();
+
+        // --- Sincronização em Tempo Real ---
+        onSnapshot(query(collection(db, "leads"), orderBy("data", "desc")), (snapshot) => {
+            dadosLocais = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderizar();
+        });
     </script>
 </body>
 </html>
