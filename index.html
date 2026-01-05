@@ -3,41 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus V12 | CRM Cloud</title>
+    <title>Nexus V12 | CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-slate-900 text-white font-sans">
 
-    <div class="flex h-screen">
+    <div class="flex h-screen overflow-hidden">
         <aside class="w-64 bg-black p-6 flex flex-col border-r border-slate-800">
-            <h1 class="text-xl font-black mb-10 text-sky-400"><i class="fas fa-car"></i> NEXUS V12</h1>
+            <h1 class="text-xl font-black mb-10 text-sky-400 italic">
+                <i class="fas fa-car"></i> NEXUS V12
+            </h1>
+            
             <nav class="space-y-4 flex-1">
-                <button onclick="window.location.reload()" class="w-full text-left p-3 rounded-lg bg-sky-600 font-bold"><i class="fas fa-sync w-6"></i> Atualizar</button>
+                <button onclick="window.showPage('showroom')" id="btn-showroom" class="w-full text-left p-4 rounded-xl bg-sky-600 font-bold transition">
+                    <i class="fas fa-th-large w-6"></i> Showroom
+                </button>
+                <button onclick="window.showPage('estoque')" id="btn-estoque" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 transition">
+                    <i class="fas fa-list w-6"></i> Estoque
+                </button>
             </nav>
-            <div id="db-status" class="text-[10px] text-amber-500 font-bold uppercase text-center">Conectando...</div>
+
+            <div class="mt-auto pt-6 border-t border-slate-800 text-center">
+                <span class="text-[10px] text-green-500 font-bold uppercase tracking-widest">Vexus Cloud Online</span>
+            </div>
         </aside>
 
         <main class="flex-1 p-10 overflow-y-auto">
-            <div class="flex justify-between items-center mb-10">
-                <h2 class="text-3xl font-bold">Showroom Cloud</h2>
-                <button onclick="document.getElementById('modal').classList.remove('hidden')" class="bg-white text-black px-6 py-3 rounded-xl font-bold hover:bg-sky-400">+ Novo Carro</button>
+            <div id="header-dinamico" class="flex justify-between items-center mb-10">
+                <h2 id="page-title" class="text-3xl font-black italic">Showroom Cloud</h2>
+                <button onclick="document.getElementById('modal').classList.remove('hidden')" class="bg-white text-black px-8 py-3 rounded-xl font-black hover:bg-sky-400 transition shadow-lg">
+                    + NOVO CARRO
+                </button>
             </div>
             
             <div id="lista-carros" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <p class="text-slate-500 animate-pulse">Buscando dados na nuvem...</p>
-            </div>
+                </div>
         </main>
     </div>
 
-    <div id="modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-4">
-        <div class="bg-slate-800 p-8 rounded-2xl w-full max-w-md">
-            <h2 class="text-xl font-bold mb-4">Cadastrar na Nuvem</h2>
-            <input type="text" id="carNome" placeholder="Modelo do Carro" class="w-full p-3 mb-4 bg-slate-700 rounded-lg outline-none">
-            <input type="number" id="carPreco" placeholder="Preço R$" class="w-full p-3 mb-6 bg-slate-700 rounded-lg outline-none">
+    <div id="modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 p-8 rounded-3xl w-full max-w-md border border-slate-700 shadow-2xl">
+            <h2 class="text-2xl font-bold mb-6 text-sky-400">Cadastrar Veículo</h2>
+            <input type="text" id="carNome" placeholder="Modelo do Carro" class="w-full p-4 mb-4 bg-slate-700 rounded-xl outline-none focus:ring-2 ring-sky-500">
+            <input type="number" id="carPreco" placeholder="Preço (R$)" class="w-full p-4 mb-6 bg-slate-700 rounded-xl outline-none focus:ring-2 ring-sky-500">
             <div class="flex gap-4">
-                <button onclick="document.getElementById('modal').classList.add('hidden')" class="flex-1 text-slate-400">Cancelar</button>
-                <button id="btnSalvar" class="flex-1 bg-sky-500 p-3 rounded-lg font-bold">SALVAR</button>
+                <button onclick="document.getElementById('modal').classList.add('hidden')" class="flex-1 text-slate-400 font-bold">CANCELAR</button>
+                <button id="btnSalvar" class="flex-1 bg-sky-600 p-4 rounded-xl font-black">SALVAR</button>
             </div>
         </div>
     </div>
@@ -46,7 +58,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-        // Suas chaves da imagem image_1faa84.jpg
         const firebaseConfig = {
             apiKey: "AIzaSyAteL8sXETQcYQvCoSMhsK2yQy_968pTb8",
             authDomain: "crm-vexus.firebaseapp.com",
@@ -58,37 +69,57 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const leadsCol = collection(db, "leads");
+        let paginaAtual = 'showroom';
 
-        // Salvar Carro
+        // --- Navegação entre as 2 opções ---
+        window.showPage = (pagina) => {
+            paginaAtual = pagina;
+            document.getElementById('page-title').innerText = pagina === 'showroom' ? 'Showroom Cloud' : 'Estoque Completo';
+            
+            // Ajuste visual dos botões
+            document.getElementById('btn-showroom').className = pagina === 'showroom' ? 'w-full text-left p-4 rounded-xl bg-sky-600 font-bold' : 'w-full text-left p-4 rounded-xl hover:bg-slate-800';
+            document.getElementById('btn-estoque').className = pagina === 'estoque' ? 'w-full text-left p-4 rounded-xl bg-sky-600 font-bold' : 'w-full text-left p-4 rounded-xl hover:bg-slate-800';
+            
+            renderizar();
+        };
+
+        // --- Salvar dados ---
         document.getElementById('btnSalvar').onclick = async () => {
             const nome = document.getElementById('carNome').value;
             const preco = document.getElementById('carPreco').value;
             if(nome && preco) {
-                await addDoc(leadsCol, { nome, preco, data: new Date() });
+                await addDoc(collection(db, "leads"), { nome, preco, data: new Date() });
                 document.getElementById('modal').classList.add('hidden');
                 document.getElementById('carNome').value = '';
                 document.getElementById('carPreco').value = '';
             }
         };
 
-        // Ler em Tempo Real
-        const q = query(leadsCol, orderBy("data", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const lista = document.getElementById('lista-carros');
-            lista.innerHTML = '';
-            snapshot.forEach(doc => {
-                const car = doc.data();
-                lista.innerHTML += `
-                    <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
-                        <h3 class="text-xl font-bold">${car.nome}</h3>
-                        <p class="text-sky-400 font-black text-2xl mt-2">R$ ${Number(car.preco).toLocaleString('pt-BR')}</p>
-                    </div>
-                `;
+        // --- Escutar Banco de Dados ---
+        function renderizar() {
+            onSnapshot(query(collection(db, "leads"), orderBy("data", "desc")), (snapshot) => {
+                const lista = document.getElementById('lista-carros');
+                lista.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const car = doc.data();
+                    // Layout diferente dependendo da página
+                    if(paginaAtual === 'showroom') {
+                        lista.innerHTML += `
+                            <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl">
+                                <h3 class="text-xl font-bold">${car.nome}</h3>
+                                <p class="text-sky-400 font-black text-2xl mt-2 italic">R$ ${Number(car.preco).toLocaleString('pt-BR')}</p>
+                            </div>`;
+                    } else {
+                        lista.innerHTML += `
+                            <div class="bg-black/40 p-4 rounded-xl border-l-4 border-sky-500 flex justify-between items-center">
+                                <span class="font-bold">${car.nome}</span>
+                                <span class="text-sky-400 font-black">R$ ${Number(car.preco).toLocaleString('pt-BR')}</span>
+                            </div>`;
+                    }
+                });
             });
-            document.getElementById('db-status').innerText = "VEXUS CLOUD ONLINE";
-            document.getElementById('db-status').className = "text-[10px] text-green-500 font-bold uppercase text-center";
-        });
+        }
+        renderizar();
     </script>
 </body>
 </html>
